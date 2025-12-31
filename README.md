@@ -104,7 +104,7 @@ the token is deleted from the box.
 ## License
 MIT License
 
-Copyright (c) 2022-2023 Issi <issi.dev.iobroker@gmail.com>
+Copyright (c) 2022-2026 Issi <issi.dev.iobroker@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
