@@ -9,6 +9,7 @@
   "homepage": "https://github.com/xXBJXx/ioBroker.hue-sync-box",
   "license": "MIT",
   "keywords": [
+    "ioBroker",
     "philips",
     "hue",
     "led",
