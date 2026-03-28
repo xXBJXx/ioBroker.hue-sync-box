@@ -24,7 +24,7 @@ import {
 	updateObj,
 	video_gameObj,
 } from './lib/object_definition';
-import * as https from 'https';
+import * as https from 'node:https';
 import axios from 'axios';
 // Load your modules here, e.g.:
 import { replaceFunktion } from './lib/replaceFunktion';
