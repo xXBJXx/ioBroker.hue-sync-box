@@ -69,6 +69,9 @@ the token is deleted from the box.
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+- (copilot) Adapter requires node.js >= 22 now
+
 ### 0.3.5 (2023-02-06)
 * (xXBJXx) Dependency update
 
