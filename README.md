@@ -101,6 +101,8 @@ the token is deleted from the box.
 ### 0.1.0 (2022-12-16)
 * (Issi) First release
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## License
 MIT License
 
