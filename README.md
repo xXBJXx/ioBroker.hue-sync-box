@@ -69,6 +69,10 @@ the token is deleted from the box.
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+- (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
+
 ### 0.3.5 (2023-02-06)
 * (xXBJXx) Dependency update
 
