@@ -1,193 +1,201 @@
 {
-	"common": {
-		"name": "hue-sync-box",
-		"version": "0.3.5",
-		"news": {
-			"0.3.5": {
-				"en": "Dependency update",
-				"de": "Aktualisierung der Abhängigkeiten",
-				"ru": "Обновление зависимостей",
-				"pt": "Atualização de dependência",
-				"nl": "Afhankelijkheid bijwerken",
-				"fr": "Mise à jour des dépendances",
-				"it": "Aggiornamento della dipendenza",
-				"es": "Actualización de dependencia",
-				"pl": "Aktualizacja zależności",
-				"uk": "Оновлення залежностей",
-				"zh-cn": "依赖关系更新"
-			},
-			"0.3.4": {
-				"en": "fixed Sentry error reporting",
-				"de": "Sentry-Fehlerberichterstattung behoben",
-				"ru": "исправлены отчеты об ошибках Sentry",
-				"pt": "Reporte de erros de sentinela corrigidos",
-				"nl": "Sentry foutmelding hersteld",
-				"fr": "Correction du rapport d'erreur Sentry",
-				"it": "Segnalazione degli errori Sentry corretta",
-				"es": "Corregidos los informes de errores de Sentry",
-				"pl": "poprawiono raportowanie błędów Sentry",
-				"uk": "виправлено повідомлення про помилки Sentry",
-				"zh-cn": "修复了Sentry的错误报告"
-			},
-			"0.3.3": {
-				"en": "fixed a bug",
-				"de": "fehler behoben",
-				"ru": "исправлена ошибка",
-				"pt": "corrigiu um bug",
-				"nl": "een bug gemaakt",
-				"fr": "correction d'un bug",
-				"it": "fisso un bug",
-				"es": "fijo un error",
-				"pl": "naprawiony bug",
-				"uk": "виправлено помилку",
-				"zh-cn": "a. 固定装置"
-			},
-			"0.3.2": {
-				"en": "update dependencies\nLog output extended and improved\nAdded data point for the response JSON\nAdded data point \"Reachable\" to check if the box is reachable",
-				"de": "Update Abhängigkeiten\nLog-Ausgabe erweitert und verbessert\nDatenpunkt für die Antwort JSON hinzugefügt\nDatenpunkt \"reachable\" hinzugefügt, um zu prüfen, ob die Box erreichbar ist",
-				"ru": "обновление зависимостей\nРасширен и улучшен вывод журнала\nДобавлена точка данных для JSON ответа\nДобавлена точка данных \"Reachable\" для проверки, является ли ящик доступным",
-				"pt": "actualizar as dependências\nSaída de registo alargada e melhorada\nAdicionado ponto de dados para a resposta JSON\nAdicionado o ponto de dados \"Alcançável\" para verificar se a caixa é alcançável",
-				"nl": "afhankelijkheden bijwerken\nLogboekuitvoer uitgebreid en verbeterd\nGegevenspunt voor de respons JSON toegevoegd\nGegevenspunt \"Bereikbaar\" toegevoegd om te controleren of de box bereikbaar is",
-				"fr": "mise à jour des dépendances\nSortie du journal étendue et améliorée\nAjout d'un point de données pour la réponse JSON\nAjout d'un point de données \"Reachable\" pour vérifier si la boîte est accessible.",
-				"it": "aggiornamento delle dipendenze\nOutput di log ampliato e migliorato\nAggiunto punto di dati per la risposta JSON\nAggiunto il punto dati \"Raggiungibile\" per verificare se la casella è raggiungibile",
-				"es": "actualización de dependencias\nSalida de registro ampliada y mejorada\nAñadido punto de datos para la respuesta JSON\nAñadido punto de datos \"Alcanzable\" para comprobar si la casilla es alcanzable",
-				"pl": "uaktualnić zależności\nRozszerzone i poprawione wyjście dziennika\nDodano punkt danych dla odpowiedzi JSON\nDodano punkt danych \"Reachable\", aby sprawdzić, czy skrzynka jest osiągalna",
-				"uk": "оновлення залежностей\nРозширено та покращено виведення логів\nДодана точка даних для відповіді JSON\nДодана точка даних \"Reachable\" для перевірки доступності поля",
-				"zh-cn": "更新依赖性\n日志输出扩展和改进\n增加了响应JSON的数据点\n增加了数据点 \"Reachable\"，以检查盒子是否可达"
-			},
-			"0.3.1": {
-				"en": "Fixed error message that occurs after a successful registration.",
-				"de": "Die Fehlermeldung, die nach einer erfolgreichen Registrierung auftritt, wurde behoben.",
-				"ru": "Исправлено сообщение об ошибке, возникающее после успешной регистрации.",
-				"pt": "Mensagem de erro corrigido que ocorre após um registo bem sucedido.",
-				"nl": "Foutmelding na succesvolle registratie opgelost.",
-				"fr": "Correction du message d'erreur qui se produit après un enregistrement réussi.",
-				"it": "Corretto il messaggio di errore che si verifica dopo una registrazione riuscita.",
-				"es": "Se ha corregido el mensaje de error que aparecía tras registrarse correctamente.",
-				"pl": "Naprawiono komunikat o błędzie pojawiający się po udanej rejestracji.",
-				"uk": "Виправлено повідомлення про помилку, що виникає після успішної реєстрації.",
-				"zh-cn": "修正了注册成功后出现的错误信息。"
-			},
-			"0.3.0": {
-				"en": "added delete function for objects and Token\nadded funktion for sync the `execution.intensity` state",
-				"de": "Löschfunktion für Objekte und Token hinzugefügt\nFunktion zur Synchronisierung des Zustands `execution.intensity` hinzugefügt",
-				"ru": "добавлена функция удаления для объектов и Token\nдобавлена функция для синхронизации состояния `execution.intensity`.",
-				"pt": "acrescentada função de apagar objectos e Token\nadicionado funktion para sincronizar o estado `execution.intensity",
-				"nl": "verwijderfunctie toegevoegd voor objecten en Token\nfunctie toegevoegd voor het synchroniseren van de `execution.intensity` status",
-				"fr": "ajout d'une fonction de suppression pour les objets et les Token\najout d'une fonction pour synchroniser l'état `execution.intensity`.",
-				"it": "aggiunta la funzione di cancellazione per gli oggetti e i token\naggiunta funzione per la sincronizzazione dello stato `execution.intensity",
-				"es": "dodano funkcję usuwania obiektów i Tokenów\ndodano funkcję synchronizacji stanu `execution.intensity`.",
-				"pl": "dodano funkcję usuwania obiektów i Tokenów\ndodano funkcję synchronizacji stanu `execution.intensity`.",
-				"uk": "додано функцію видалення для об'єктів та Token\nдодано функцію синхронізації стану `execution.intensity` (інтенсивність виконання)",
-				"zh-cn": "增加了对象和令牌的删除功能\n增加了同步 `execution.intensity` 状态的功能"
-			},
-			"0.2.1": {
-				"en": "typo corrected in README\nFixed a bug when sending commands to the box",
-				"de": "Rechtschreibfehler in der README korrigiert\nFehler behoben, der beim Senden von Befehlen an die Box auftrat",
-				"ru": "Орфографическая ошибка в README исправлена\nИсправлена ошибка при отправке команд на коробку",
-				"pt": "Erro ortográfico corrigido no README\nCorrigido um bug ao enviar comandos para a caixa",
-				"nl": "Spelfout gecorrigeerd in README\nFout verholpen bij het verzenden van opdrachten naar de doos",
-				"fr": "Erreur d'orthographe corrigée dans le README\nErreur corrigée lors de l'envoi de commandes à la boîte",
-				"it": "Errore ortografico corretto in README\nCorretto un bug durante l'invio di comandi alla scatola",
-				"es": "Error ortográfico corregido en README\nSe corrigió un error al enviar comandos a la caja",
-				"pl": "Poprawiono literówkę w README\nNaprawiono błąd podczas wysyłania poleceń do skrzynki",
-				"uk": "Орфографічна помилка в README виправлена\nВиправлена помилка при відправленні команд на коробку",
-				"zh-cn": "README中的拼写错误已修复\n在发送命令到盒子时修复了一个错误"
-			}
-		},
-		"title": "Hue Sync Box",
-		"titleLang": {
-			"en": "Hue Sync Box",
-			"de": "Hue Sync Box",
-			"ru": "Hue Sync Box",
-			"pt": "Hue Sync Box",
-			"nl": "Hue Sync Box",
-			"fr": "Hue Sync Box",
-			"it": "Hue Sync Box",
-			"es": "Hue Sync Box",
-			"pl": "Hue Sync Box",
-			"uk": "Hue Sync Box",
-			"zh-cn": "Hue Sync Box"
-		},
-		"desc": {
-			"en": "An adapter to read and control the Philips Hue Sync Box",
-			"de": "Ein Adapter zum Lesen und Steuern der Philips Hue Sync Box",
-			"ru": "Адаптер для чтения и управления Philips Hue Sync Box",
-			"pt": "Um adaptador para ler e controlar a Philips Hue Sync Box",
-			"nl": "Een adapter om de Philips Hue Sync Box te lezen en te bedienen",
-			"fr": "Un adaptateur pour lire et contrôler la Philips Hue Sync Box",
-			"it": "Un adattatore per leggere e controllare la Philips Hue Sync Box",
-			"es": "Un adaptador para leer y controlar la Philips Hue Sync Box",
-			"pl": "Adapter do odczytu i sterowania Philips Hue Sync Box",
-			"uk": "Адаптер для читання та керування Philips Hue Sync Box",
-			"zh-cn": "用于读取和控制Philips Hue Sync Box的适配器"
-		},
-		"authors": ["Issi <issi.dev.iobroker@gmail.com>"],
-		"keywords": ["philips", "hue", "led", "light", "sync", "hue sync box"],
-		"license": "MIT",
-		"platform": "Javascript/Node.js",
-		"main": "build/main.js",
-		"icon": "hueSyncBox.png",
-		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/xXBJXx/ioBroker.hue-sync-box/main/admin/hueSyncBox.png",
-		"readme": "https://github.com/xXBJXx/ioBroker.hue-sync-box/blob/main/README.md",
-		"loglevel": "info",
-		"mode": "daemon",
-		"type": "lighting",
-		"compact": true,
-		"connectionType": "local",
-		"dataSource": "poll",
-		"materialize": true,
-		"tier": 2,
-		"singleton": true,
-		"messagebox": true,
-		"adminUI": {
-			"config": "materialize"
-		},
-		"eraseOnUpload": true,
-		"dependencies": [
-			{
-				"js-controller": ">=4.0.23"
-			}
-		],
-		"globalDependencies": [
-			{
-				"admin": ">=5.0.0"
-			}
-		],
-		"plugins": {
-			"sentry": {
-				"dsn": "https://717054a82229405cb70882f4c3dc379f@o384969.ingest.sentry.io/4504312799559680"
-			}
-		}
-	},
-	"protectedNative": [],
-	"encryptedNative": [],
-	"native": {
-		"devices": []
-	},
-	"objects": [],
-	"instanceObjects": [
-		{
-			"_id": "info",
-			"type": "channel",
-			"common": {
-				"name": "Information"
-			},
-			"native": {}
-		},
-		{
-			"_id": "info.connection",
-			"type": "state",
-			"common": {
-				"role": "indicator.connected",
-				"name": "Device or service connected",
-				"type": "boolean",
-				"read": true,
-				"write": false,
-				"def": false
-			},
-			"native": {}
-		}
-	]
+  "common": {
+    "name": "hue-sync-box",
+    "version": "0.3.5",
+    "news": {
+      "0.3.5": {
+        "en": "Dependency update",
+        "de": "Aktualisierung der Abhängigkeiten",
+        "ru": "Обновление зависимостей",
+        "pt": "Atualização de dependência",
+        "nl": "Afhankelijkheid bijwerken",
+        "fr": "Mise à jour des dépendances",
+        "it": "Aggiornamento della dipendenza",
+        "es": "Actualización de dependencia",
+        "pl": "Aktualizacja zależności",
+        "uk": "Оновлення залежностей",
+        "zh-cn": "依赖关系更新"
+      },
+      "0.3.4": {
+        "en": "fixed Sentry error reporting",
+        "de": "Sentry-Fehlerberichterstattung behoben",
+        "ru": "исправлены отчеты об ошибках Sentry",
+        "pt": "Reporte de erros de sentinela corrigidos",
+        "nl": "Sentry foutmelding hersteld",
+        "fr": "Correction du rapport d'erreur Sentry",
+        "it": "Segnalazione degli errori Sentry corretta",
+        "es": "Corregidos los informes de errores de Sentry",
+        "pl": "poprawiono raportowanie błędów Sentry",
+        "uk": "виправлено повідомлення про помилки Sentry",
+        "zh-cn": "修复了Sentry的错误报告"
+      },
+      "0.3.3": {
+        "en": "fixed a bug",
+        "de": "fehler behoben",
+        "ru": "исправлена ошибка",
+        "pt": "corrigiu um bug",
+        "nl": "een bug gemaakt",
+        "fr": "correction d'un bug",
+        "it": "fisso un bug",
+        "es": "fijo un error",
+        "pl": "naprawiony bug",
+        "uk": "виправлено помилку",
+        "zh-cn": "a. 固定装置"
+      },
+      "0.3.2": {
+        "en": "update dependencies\nLog output extended and improved\nAdded data point for the response JSON\nAdded data point \"Reachable\" to check if the box is reachable",
+        "de": "Update Abhängigkeiten\nLog-Ausgabe erweitert und verbessert\nDatenpunkt für die Antwort JSON hinzugefügt\nDatenpunkt \"reachable\" hinzugefügt, um zu prüfen, ob die Box erreichbar ist",
+        "ru": "обновление зависимостей\nРасширен и улучшен вывод журнала\nДобавлена точка данных для JSON ответа\nДобавлена точка данных \"Reachable\" для проверки, является ли ящик доступным",
+        "pt": "actualizar as dependências\nSaída de registo alargada e melhorada\nAdicionado ponto de dados para a resposta JSON\nAdicionado o ponto de dados \"Alcançável\" para verificar se a caixa é alcançável",
+        "nl": "afhankelijkheden bijwerken\nLogboekuitvoer uitgebreid en verbeterd\nGegevenspunt voor de respons JSON toegevoegd\nGegevenspunt \"Bereikbaar\" toegevoegd om te controleren of de box bereikbaar is",
+        "fr": "mise à jour des dépendances\nSortie du journal étendue et améliorée\nAjout d'un point de données pour la réponse JSON\nAjout d'un point de données \"Reachable\" pour vérifier si la boîte est accessible.",
+        "it": "aggiornamento delle dipendenze\nOutput di log ampliato e migliorato\nAggiunto punto di dati per la risposta JSON\nAggiunto il punto dati \"Raggiungibile\" per verificare se la casella è raggiungibile",
+        "es": "actualización de dependencias\nSalida de registro ampliada y mejorada\nAñadido punto de datos para la respuesta JSON\nAñadido punto de datos \"Alcanzable\" para comprobar si la casilla es alcanzable",
+        "pl": "uaktualnić zależności\nRozszerzone i poprawione wyjście dziennika\nDodano punkt danych dla odpowiedzi JSON\nDodano punkt danych \"Reachable\", aby sprawdzić, czy skrzynka jest osiągalna",
+        "uk": "оновлення залежностей\nРозширено та покращено виведення логів\nДодана точка даних для відповіді JSON\nДодана точка даних \"Reachable\" для перевірки доступності поля",
+        "zh-cn": "更新依赖性\n日志输出扩展和改进\n增加了响应JSON的数据点\n增加了数据点 \"Reachable\"，以检查盒子是否可达"
+      },
+      "0.3.1": {
+        "en": "Fixed error message that occurs after a successful registration.",
+        "de": "Die Fehlermeldung, die nach einer erfolgreichen Registrierung auftritt, wurde behoben.",
+        "ru": "Исправлено сообщение об ошибке, возникающее после успешной регистрации.",
+        "pt": "Mensagem de erro corrigido que ocorre após um registo bem sucedido.",
+        "nl": "Foutmelding na succesvolle registratie opgelost.",
+        "fr": "Correction du message d'erreur qui se produit après un enregistrement réussi.",
+        "it": "Corretto il messaggio di errore che si verifica dopo una registrazione riuscita.",
+        "es": "Se ha corregido el mensaje de error que aparecía tras registrarse correctamente.",
+        "pl": "Naprawiono komunikat o błędzie pojawiający się po udanej rejestracji.",
+        "uk": "Виправлено повідомлення про помилку, що виникає після успішної реєстрації.",
+        "zh-cn": "修正了注册成功后出现的错误信息。"
+      },
+      "0.3.0": {
+        "en": "added delete function for objects and Token\nadded funktion for sync the `execution.intensity` state",
+        "de": "Löschfunktion für Objekte und Token hinzugefügt\nFunktion zur Synchronisierung des Zustands `execution.intensity` hinzugefügt",
+        "ru": "добавлена функция удаления для объектов и Token\nдобавлена функция для синхронизации состояния `execution.intensity`.",
+        "pt": "acrescentada função de apagar objectos e Token\nadicionado funktion para sincronizar o estado `execution.intensity",
+        "nl": "verwijderfunctie toegevoegd voor objecten en Token\nfunctie toegevoegd voor het synchroniseren van de `execution.intensity` status",
+        "fr": "ajout d'une fonction de suppression pour les objets et les Token\najout d'une fonction pour synchroniser l'état `execution.intensity`.",
+        "it": "aggiunta la funzione di cancellazione per gli oggetti e i token\naggiunta funzione per la sincronizzazione dello stato `execution.intensity",
+        "es": "dodano funkcję usuwania obiektów i Tokenów\ndodano funkcję synchronizacji stanu `execution.intensity`.",
+        "pl": "dodano funkcję usuwania obiektów i Tokenów\ndodano funkcję synchronizacji stanu `execution.intensity`.",
+        "uk": "додано функцію видалення для об'єктів та Token\nдодано функцію синхронізації стану `execution.intensity` (інтенсивність виконання)",
+        "zh-cn": "增加了对象和令牌的删除功能\n增加了同步 `execution.intensity` 状态的功能"
+      },
+      "0.2.1": {
+        "en": "typo corrected in README\nFixed a bug when sending commands to the box",
+        "de": "Rechtschreibfehler in der README korrigiert\nFehler behoben, der beim Senden von Befehlen an die Box auftrat",
+        "ru": "Орфографическая ошибка в README исправлена\nИсправлена ошибка при отправке команд на коробку",
+        "pt": "Erro ortográfico corrigido no README\nCorrigido um bug ao enviar comandos para a caixa",
+        "nl": "Spelfout gecorrigeerd in README\nFout verholpen bij het verzenden van opdrachten naar de doos",
+        "fr": "Erreur d'orthographe corrigée dans le README\nErreur corrigée lors de l'envoi de commandes à la boîte",
+        "it": "Errore ortografico corretto in README\nCorretto un bug durante l'invio di comandi alla scatola",
+        "es": "Error ortográfico corregido en README\nSe corrigió un error al enviar comandos a la caja",
+        "pl": "Poprawiono literówkę w README\nNaprawiono błąd podczas wysyłania poleceń do skrzynki",
+        "uk": "Орфографічна помилка в README виправлена\nВиправлена помилка при відправленні команд на коробку",
+        "zh-cn": "README中的拼写错误已修复\n在发送命令到盒子时修复了一个错误"
+      }
+    },
+    "title": "Hue Sync Box",
+    "titleLang": {
+      "en": "Hue Sync Box",
+      "de": "Hue Sync Box",
+      "ru": "Hue Sync Box",
+      "pt": "Hue Sync Box",
+      "nl": "Hue Sync Box",
+      "fr": "Hue Sync Box",
+      "it": "Hue Sync Box",
+      "es": "Hue Sync Box",
+      "pl": "Hue Sync Box",
+      "uk": "Hue Sync Box",
+      "zh-cn": "Hue Sync Box"
+    },
+    "desc": {
+      "en": "An adapter to read and control the Philips Hue Sync Box",
+      "de": "Ein Adapter zum Lesen und Steuern der Philips Hue Sync Box",
+      "ru": "Адаптер для чтения и управления Philips Hue Sync Box",
+      "pt": "Um adaptador para ler e controlar a Philips Hue Sync Box",
+      "nl": "Een adapter om de Philips Hue Sync Box te lezen en te bedienen",
+      "fr": "Un adaptateur pour lire et contrôler la Philips Hue Sync Box",
+      "it": "Un adattatore per leggere e controllare la Philips Hue Sync Box",
+      "es": "Un adaptador para leer y controlar la Philips Hue Sync Box",
+      "pl": "Adapter do odczytu i sterowania Philips Hue Sync Box",
+      "uk": "Адаптер для читання та керування Philips Hue Sync Box",
+      "zh-cn": "用于读取和控制Philips Hue Sync Box的适配器"
+    },
+    "authors": [
+      "Issi <issi.dev.iobroker@gmail.com>"
+    ],
+    "keywords": [
+      "philips",
+      "hue",
+      "led",
+      "light",
+      "sync",
+      "hue sync box"
+    ],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "main": "build/main.js",
+    "icon": "hueSyncBox.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/xXBJXx/ioBroker.hue-sync-box/main/admin/hueSyncBox.png",
+    "readme": "https://github.com/xXBJXx/ioBroker.hue-sync-box/blob/main/README.md",
+    "loglevel": "info",
+    "mode": "daemon",
+    "type": "lighting",
+    "compact": true,
+    "connectionType": "local",
+    "dataSource": "poll",
+    "tier": 2,
+    "singleton": true,
+    "messagebox": true,
+    "adminUI": {
+      "config": "materialize"
+    },
+    "eraseOnUpload": true,
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=5.0.0"
+      }
+    ],
+    "plugins": {
+      "sentry": {
+        "dsn": "https://717054a82229405cb70882f4c3dc379f@o384969.ingest.sentry.io/4504312799559680"
+      }
+    }
+  },
+  "protectedNative": [],
+  "encryptedNative": [],
+  "native": {
+    "devices": []
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Device or service connected",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
 }
