@@ -110,8 +110,82 @@ npm run build
 
 Lokale Hardwaretests verwenden `HUE_SYNC_BOX_HOST`, `HUE_SYNC_BOX_UNIQUE_ID` und `HUE_SYNC_BOX_TOKEN` als Umgebungsvariablen. Diese Werte niemals committen.
 
+## Changelog
+
+<!--
+	Placeholder for the next version (at the beginning of the line):
+	### **WORK IN PROGRESS**
+-->
+
+### **WORK IN PROGRESS**
+
+- (xXBJXx) Reworked the adapter with a secure, strictly typed Hue Sync Box API client and capability-based support for 4K and 8K models.
+- (xXBJXx) Added local discovery and guided pairing directly to the adapter settings.
+- (xXBJXx) Added complete state-based control for VIS-2, scripts and custom ioBroker interfaces.
+- (xXBJXx) Added verified TLS handling, bounded retries, protected credentials and expanded automated tests.
+- (xXBJXx) Rewrote the user documentation in English and German.
+
+### 0.3.5 (2023-02-06)
+
+- (xXBJXx) Dependency update
+
+### 0.3.4 (2023-01-15)
+
+- (xXBJXx) fixed Sentry error reporting
+
+### 0.3.3 (2023-01-14)
+
+- (xXBJXx) fixed a bug
+
+### 0.3.2 (2023-01-13)
+
+- (xXBJXx) update dependencies
+- (xXBJXx) Log output extended and improved
+- (xXBJXx) Added data point for the response JSON
+- (xXBJXx) Added data point "Reachable" to check if the box is reachable
+
+### 0.3.1 (2022-12-20)
+
+- (xXBJXx) Fixed error message that occurs after a successful registration.
+
+### 0.3.0 (2022-12-20)
+
+- (xXBJXx) added delete function for objects and Token
+- (xXBJXx) added funktion for sync the `execution.intensity` state
+
+### 0.2.1 (2022-12-17)
+
+- (xXBJXx) typo corrected in README
+- (xXBJXx) Fixed a bug when sending commands to the box
+
+### 0.2.0 (2022-12-17)
+
+- (xXBJXx) Optimization and improvement of the registration process
+
+### 0.1.0 (2022-12-16)
+
+- (Issi) First release
+
 ## Lizenz
 
 MIT License
 
 Copyright (c) 2022-2026 Issi <issi.dev.iobroker@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
