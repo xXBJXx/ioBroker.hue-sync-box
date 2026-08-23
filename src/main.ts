@@ -34,7 +34,7 @@ export class HueSyncBox extends utils.Adapter {
     }
 
     private async onReady(): Promise<void> {
-        await this.setStateAsync('info.connection', false, true);
+        await this.setState('info.connection', { val: false, ack: true });
         this.normalizedConfig = normalizeConfig(this.config);
         if (this.normalizedConfig.allowInsecureTls) {
             this.log.warn(

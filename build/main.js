@@ -58,7 +58,7 @@ class HueSyncBox extends utils.Adapter {
         this.on('unload', this.onUnload.bind(this));
     }
     async onReady() {
-        await this.setStateAsync('info.connection', false, true);
+        await this.setState('info.connection', { val: false, ack: true });
         this.normalizedConfig = (0, migration_1.normalizeConfig)(this.config);
         if (this.normalizedConfig.allowInsecureTls) {
             this.log.warn('TLS certificate validation is disabled by configuration. This should only be used temporarily for diagnostics.');

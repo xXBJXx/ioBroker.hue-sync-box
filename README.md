@@ -100,6 +100,8 @@ Normal API requests validate the Sync Box certificate against the Hue Sync Box C
 
 ## Development
 
+The [project and development documentation](docs/PROJECT_GUIDE.md) explains the runtime components, configuration lifecycle, security boundaries, localization, tests and release workflow. The [Hue API mapping](docs/HUE_SYNC_BOX_API.md) documents endpoints, capabilities, state semantics and retry behavior.
+
 ```bash
 npm install
 npm run lint
@@ -119,6 +121,8 @@ Local hardware tests require `HUE_SYNC_BOX_HOST`, `HUE_SYNC_BOX_UNIQUE_ID` and `
 
 ### **WORK IN PROGRESS**
 
+- (xXBJXx) Replaced deprecated ioBroker state writes with the current Promise-based `setState` API.
+- (xXBJXx) Added complete Admin UI translations for all eleven ioBroker languages and documented the project internals.
 - (xXBJXx) Reworked the adapter with a secure, strictly typed Hue Sync Box API client and capability-based support for 4K and 8K models.
 - (xXBJXx) Added local discovery and guided pairing directly to the adapter settings.
 - (xXBJXx) Added complete state-based control for VIS-2, scripts and custom ioBroker interfaces.

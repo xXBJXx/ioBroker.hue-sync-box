@@ -109,6 +109,6 @@ export class StateManager {
             });
             this.knownStates.add(id);
         }
-        await this.adapter.setStateAsync(id, { val: value, ack: true });
+        await this.adapter.setState(id, { val: value, ack: true });
     }
 }

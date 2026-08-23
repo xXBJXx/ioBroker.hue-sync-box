@@ -99,7 +99,7 @@ export class SyncBoxManager {
             const segments = path.split('.');
             const property = segments.pop()!;
             await box.client.updateResource<JsonObject>(segments.join('/'), { [property]: state.val });
-            await this.adapter.setStateAsync(relative, { val: state.val, ack: true });
+            await this.adapter.setState(relative, { val: state.val, ack: true });
             await this.pollResource(box, segments[0]!);
         } catch (error) {
             this.adapter.log.warn(`Write to ${relative} failed: ${errorMessage(error)}`);
@@ -306,10 +306,9 @@ export class SyncBoxManager {
 
     private async updateConnectionState(): Promise<void> {
         const boxes = [...this.boxes.values()];
-        await this.adapter.setStateAsync(
-            'info.connection',
-            boxes.length > 0 && boxes.every(box => box.connected),
-            true,
-        );
+        await this.adapter.setState('info.connection', {
+            val: boxes.length > 0 && boxes.every(box => box.connected),
+            ack: true,
+        });
     }
 }

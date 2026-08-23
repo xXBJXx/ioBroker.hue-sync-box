@@ -25,6 +25,7 @@ import {
     type GenericAppSettings,
     type GenericAppState,
 } from '@iobroker/gui-components';
+import { translations } from './translations';
 
 interface DeviceConfig {
     name: string;
@@ -53,21 +54,6 @@ interface AppState extends GenericAppState {
     manualName: string;
     notice?: { severity: 'success' | 'error' | 'info'; text: string };
 }
-
-const translations = {
-    en: {
-        Settings: 'Settings',
-        Pairing: 'Find and pair a Sync Box',
-        Polling: 'Polling intervals',
-        Security: 'Network and security',
-    },
-    de: {
-        Settings: 'Einstellungen',
-        Pairing: 'Sync Box suchen und koppeln',
-        Polling: 'Abfrageintervalle',
-        Security: 'Netzwerk und Sicherheit',
-    },
-};
 
 export default class App extends GenericApp<GenericAppProps, AppState> {
     public constructor(props: GenericAppProps) {
@@ -100,7 +86,7 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
             payload,
         );
         if (!response.ok) {
-            throw new Error(response.error || 'The adapter did not complete the request.');
+            throw new Error(response.error || I18n.t('The adapter did not complete the request.'));
         }
         return response.result as T;
     }
@@ -114,8 +100,12 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                 notice: {
                     severity: discovered.length ? 'success' : 'info',
                     text: discovered.length
-                        ? `${discovered.length} Sync Box${discovered.length === 1 ? '' : 'es'} found.`
-                        : 'No Sync Box found. Check that ioBroker and the box are in the same network, or pair manually.',
+                        ? discovered.length === 1
+                            ? I18n.t('One Sync Box found.')
+                            : I18n.t('%s Sync Boxes found.', discovered.length)
+                        : I18n.t(
+                              'No Sync Box found. Check that ioBroker and the box are in the same network, or pair manually.',
+                          ),
                 },
             });
         } catch (error) {
@@ -130,14 +120,16 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
             this.setState({
                 notice: {
                     severity: 'info',
-                    text: 'Save pending setting changes before pairing a Sync Box.',
+                    text: I18n.t('Save pending setting changes before pairing a Sync Box.'),
                 },
             });
             return;
         }
         const host = (device?.host ?? this.state.manualHost).trim();
         if (!host) {
-            this.setState({ notice: { severity: 'error', text: 'Enter an IP address or hostname first.' } });
+            this.setState({
+                notice: { severity: 'error', text: I18n.t('Enter an IP address or hostname first.') },
+            });
             return;
         }
         this.setState({ busy: true, notice: undefined });
@@ -150,7 +142,7 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
             this.setState({
                 notice: {
                     severity: 'success',
-                    text: 'Pairing succeeded and the box was saved. The settings page will reload now.',
+                    text: I18n.t('Pairing succeeded and the box was saved. The settings page will reload now.'),
                 },
             });
             window.setTimeout(() => window.location.reload(), 1_500);
@@ -173,14 +165,15 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                         variant="h6"
                         gutterBottom
                     >
-                        {I18n.t('Pairing')}
+                        {I18n.t('Find and pair a Sync Box')}
                     </Typography>
                     <Alert
                         severity="info"
                         sx={{ mb: 2 }}
                     >
-                        Hold the button on the Sync Box for about three seconds. While the light is blinking, start
-                        pairing below.
+                        {I18n.t(
+                            'Hold the button on the Sync Box for about three seconds. While the light is blinking, start pairing below.',
+                        )}
                     </Alert>
                     <Button
                         variant="contained"
@@ -197,7 +190,7 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                         disabled={this.state.busy}
                         onClick={() => void this.discover()}
                     >
-                        Search local network
+                        {I18n.t('Search local network')}
                     </Button>
                     {this.state.discovered.length > 0 && (
                         <Stack
@@ -217,7 +210,7 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                                         disabled={this.state.busy}
                                         onClick={() => void this.pair(device)}
                                     >
-                                        Pair
+                                        {I18n.t('Pair')}
                                     </Button>
                                 </Box>
                             ))}
@@ -227,19 +220,19 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                         variant="subtitle1"
                         sx={{ mt: 3, mb: 1 }}
                     >
-                        Manual pairing
+                        {I18n.t('Manual pairing')}
                     </Typography>
                     <Stack
                         direction={{ xs: 'column', md: 'row' }}
                         spacing={2}
                     >
                         <TextField
-                            label="IP address or hostname"
+                            label={I18n.t('IP address or hostname')}
                             value={this.state.manualHost}
                             onChange={event => this.setState({ manualHost: event.target.value })}
                         />
                         <TextField
-                            label="Name (optional)"
+                            label={I18n.t('Name (optional)')}
                             value={this.state.manualName}
                             onChange={event => this.setState({ manualName: event.target.value })}
                         />
@@ -249,7 +242,7 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                             disabled={this.state.busy || !this.state.manualHost.trim()}
                             onClick={() => void this.pair()}
                         >
-                            Pair manually
+                            {I18n.t('Pair manually')}
                         </Button>
                     </Stack>
                 </CardContent>
@@ -274,14 +267,14 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                                 variant="h6"
                                 gutterBottom
                             >
-                                {I18n.t('Polling')}
+                                {I18n.t('Polling intervals')}
                             </Typography>
                             <Stack
                                 direction={{ xs: 'column', md: 'row' }}
                                 spacing={2}
                             >
                                 <TextField
-                                    label="Execution (seconds)"
+                                    label={I18n.t('Execution (seconds)')}
                                     type="number"
                                     value={this.state.native.pollExecutionSeconds ?? 3}
                                     onChange={event =>
@@ -290,7 +283,7 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                                     slotProps={{ htmlInput: { min: 2, max: 60 } }}
                                 />
                                 <TextField
-                                    label="Status (seconds)"
+                                    label={I18n.t('Status (seconds)')}
                                     type="number"
                                     value={this.state.native.pollStatusSeconds ?? 15}
                                     onChange={event =>
@@ -299,7 +292,7 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                                     slotProps={{ htmlInput: { min: 5, max: 300 } }}
                                 />
                                 <TextField
-                                    label="Metadata (minutes)"
+                                    label={I18n.t('Metadata (minutes)')}
                                     type="number"
                                     value={this.state.native.pollMetadataMinutes ?? 5}
                                     onChange={event =>
@@ -316,12 +309,12 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                                 variant="h6"
                                 gutterBottom
                             >
-                                {I18n.t('Security')}
+                                {I18n.t('Network and security')}
                             </Typography>
                             <TextField
                                 fullWidth
-                                label="IPv4 interface prefix (optional)"
-                                helperText="Example: 192.168.10. — leave empty to search all interfaces"
+                                label={I18n.t('IPv4 interface prefix (optional)')}
+                                helperText={I18n.t('Example: 192.168.10. — leave empty to search all interfaces')}
                                 value={this.state.native.discoveryInterface ?? ''}
                                 onChange={event => this.updateNativeValue('discoveryInterface', event.target.value)}
                             />
@@ -334,20 +327,24 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                                         }
                                     />
                                 }
-                                label="Allow insecure TLS (diagnostics only)"
+                                label={I18n.t('Allow insecure TLS (diagnostics only)')}
                             />
                             {this.state.native.allowInsecureTls && (
                                 <Alert severity="warning">
-                                    Certificate validation is disabled. Never leave this enabled in normal operation.
+                                    {I18n.t(
+                                        'Certificate validation is disabled. Never leave this enabled in normal operation.',
+                                    )}
                                 </Alert>
                             )}
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent>
-                            <Typography variant="h6">Configured boxes ({devices.length})</Typography>
+                            <Typography variant="h6">
+                                {I18n.t('Configured boxes')} ({devices.length})
+                            </Typography>
                             {!devices.length && (
-                                <Typography color="text.secondary">No Sync Box configured yet.</Typography>
+                                <Typography color="text.secondary">{I18n.t('No Sync Box configured yet.')}</Typography>
                             )}
                             <Stack
                                 spacing={1}
@@ -362,7 +359,7 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                                         <code>{device.ip}</code>
                                         <Chip
                                             size="small"
-                                            label={device.disabled ? 'disabled' : 'configured'}
+                                            label={I18n.t(device.disabled ? 'disabled' : 'configured')}
                                         />
                                     </Box>
                                 ))}
@@ -370,8 +367,9 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                         </CardContent>
                     </Card>
                     <Alert severity="info">
-                        Daily control is provided through the adapter states. Use them in VIS-2, scripts or your own
-                        dashboard.
+                        {I18n.t(
+                            'Daily control is provided through the adapter states. Use them in VIS-2, scripts or your own dashboard.',
+                        )}
                     </Alert>
                 </Stack>
                 {this.renderHelperDialogs()}
