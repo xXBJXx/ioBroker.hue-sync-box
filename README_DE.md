@@ -107,6 +107,7 @@ Normale API-Anfragen prüfen das Zertifikat der Sync Box gegen die Hue-Sync-Box-
 
 ### **WORK IN PROGRESS**
 
+- (xXBJXx) Fixed vertical scrolling on the adapter configuration page.
 - (xXBJXx) Replaced deprecated ioBroker state and object writes with the current Promise-based APIs.
 - (xXBJXx) Added complete Admin UI translations for all eleven ioBroker languages.
 - (xXBJXx) Reworked the adapter with a secure, strictly typed Hue Sync Box API client and capability-based support for 4K and 8K models.
