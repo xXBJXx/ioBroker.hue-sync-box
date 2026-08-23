@@ -21,10 +21,9 @@
   },
   "main": "build/main.js",
   "workspaces": ["src-admin"],
-  "files": ["admin/", "build/", "io-package.json", "LICENSE", "README.md"],
+  "files": ["admin/", "build/", "docs/HUE_SYNC_BOX_API.md", "io-package.json", "LICENSE", "README.md", "README_DE.md"],
   "dependencies": {
     "@iobroker/adapter-core": "^3.4.3",
-    "@iobroker/dm-utils": "^3.2.0",
     "bonjour-service": "^1.4.4"
   },
   "devDependencies": {
@@ -43,7 +42,7 @@
     "vitest": "^4.1.0"
   },
   "scripts": {
-    "clean": "rimraf build admin/assets admin/index.html admin/tab.html",
+    "clean": "rimraf build admin/assets admin/index_m.html",
     "build:ts": "tsc -p tsconfig.build.json",
     "build:admin": "npm --workspace src-admin run build",
     "build": "npm run clean && npm run build:ts && npm run build:admin",

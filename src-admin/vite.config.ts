@@ -11,8 +11,7 @@ export default defineConfig({
         sourcemap: false,
         rollupOptions: {
             input: {
-                index: resolve(import.meta.dirname, 'index.html'),
-                tab: resolve(import.meta.dirname, 'tab.html'),
+                index_m: resolve(import.meta.dirname, 'index_m.html'),
             },
         },
     },

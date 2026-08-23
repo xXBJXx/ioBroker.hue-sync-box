@@ -5,114 +5,110 @@
 [![NPM version](https://img.shields.io/npm/v/iobroker.hue-sync-box.svg)](https://www.npmjs.com/package/iobroker.hue-sync-box)
 [![Tests](https://github.com/xXBJXx/ioBroker.hue-sync-box/actions/workflows/test-and-release.yml/badge.svg)](https://github.com/xXBJXx/ioBroker.hue-sync-box/actions/workflows/test-and-release.yml)
 
-Secure local control and monitoring for the Philips Hue Play HDMI Sync Box 4K and 8K.
+Control and monitor a Philips Hue Play HDMI Sync Box locally from ioBroker. The adapter supports the 4K and 8K models, discovers boxes in the local network and provides states for VIS-2, scripts and other ioBroker visualizations.
+
+Deutsche Anleitung: [README_DE.md](README_DE.md)
+
+## Disclaimer
+
+All product and company names, logos and trademarks mentioned in this project belong to their respective owners. Philips is a registered trademark of Koninklijke Philips N.V.; Hue is a brand of Signify. Their use is solely for identification and does not imply any affiliation with, sponsorship by or endorsement from Koninklijke Philips N.V., Signify Holding B.V., Signify Netherlands B.V. or their associated companies. This is a private, non-commercial project developed for recreational purposes.
+
+## Error reporting with Sentry
+
+This adapter uses the Sentry integration provided by ioBroker to automatically report unexpected exceptions and code errors to the developers. Error reporting has been available through js-controller since version 3.0 and helps identify and resolve defects that might otherwise go unnoticed.
+
+For details about the transmitted information and instructions for disabling error reporting, see the [official ioBroker Sentry documentation](https://github.com/ioBroker/ioBroker.js-controller#error-reporting-via-iobroker-sentry).
+
+## What the adapter can do
+
+- Turn the HDMI output and light synchronization on or off
+- Select HDMI input, synchronization mode and Entertainment Area
+- Set brightness and mode-specific intensity
+- Read HDMI signal, Hue Bridge connection, Wi-Fi quality and device information
+- Report overheating, undervoltage and reachability
+- Discover and pair a Sync Box without exposing its access token
+- Preserve the established `box_<name>` object IDs when upgrading
+
+The adapter deliberately has no separate control tab or Device Manager page. Those pages are also hidden below ioBroker Admin and would duplicate the same controls. The settings page is used once for setup; daily control is available through states so users can build the interface they actually want in VIS-2 or another ioBroker frontend.
 
 ## Requirements
 
 - Node.js 22.18 or newer
 - ioBroker js-controller 7.2.2 or newer
 - ioBroker Admin 8.0.0 or newer
-- A Sync Box already set up in the official Philips Hue app
-- IPv4 connectivity from the ioBroker host to TCP port 443 on the box
+- A Sync Box already set up with the official Philips Hue app
+- Network access from the ioBroker host to TCP port 443 on the box
 
-Admin 8 is required because the current official `@iobroker/gui-components` package uses the Admin 8 / React 19 UI runtime. This is intentionally higher than the otherwise sufficient Admin 7.8.23.
+## First setup
 
-## Setup and pairing
+1. Install the adapter and create an instance.
+2. Open the instance settings.
+3. Hold the button on the Sync Box for about three seconds. The LED must blink while pairing.
+4. Select **Search local network** and then **Pair** next to the detected box.
+5. If discovery finds nothing, enter the IP address under **Manual pairing**.
+6. The adapter saves the box and reloads the settings page. Restart the instance if the new states do not appear automatically.
 
-1. Open ioBroker **Device Manager** and expand the adapter instance.
-2. Choose **Discover Sync Boxes**. Discovery uses `_huesync._tcp` over mDNS.
-3. If mDNS cannot cross your Docker, LXC or VLAN boundary, choose **Pair manually** and enter an IPv4 address or hostname.
-4. Hold the button on the Sync Box for about three seconds, confirm the prompt, and pair.
-5. Restart the adapter instance after a newly paired box was saved.
+The box is discovered through mDNS (`_huesync._tcp`). Multicast discovery often cannot cross VLAN, Docker or LXC boundaries; manual pairing by IP address works in that situation.
 
-The registration token is stored in `native.devices[].token` using ioBroker's `encryptedNative` and `protectedNative` handling. It is never included in diagnostics or logs. Existing `devices` arrays from adapter 0.3.x remain supported.
+The access token is stored in ioBroker's encrypted and protected native configuration. It is not written to states, diagnostics or logs.
 
-## User interfaces
+## Using the states
 
-- **Adapter settings:** global polling intervals, optional IPv4 interface prefix and the explicitly unsafe TLS diagnostic switch.
-- **Device Manager:** discovery, pairing, reachability, firmware/API information, Wi-Fi strength, warnings and refresh.
-- **Adapter tab:** daily control of HDMI power, light sync, mode, input, brightness (0–200; 100 is neutral), Entertainment Area and signal status.
+Every configured box is created below `hue-sync-box.<instance>.box_<name>`. Writing a supported value to a writable state sends the change to the Sync Box.
 
-The two operational UIs intentionally do not duplicate each other. Firmware update and software restart are not exposed as ordinary writable states because they require an explicit confirmation workflow.
+| State                       | Purpose                            | Values/example                                                  |
+| --------------------------- | ---------------------------------- | --------------------------------------------------------------- |
+| `reachable`                 | Box is reachable and authenticated | `true` / `false`                                                |
+| `execution.hdmiActive`      | HDMI output                        | `true` / `false`                                                |
+| `execution.syncActive`      | Light synchronization              | `true` / `false`                                                |
+| `execution.mode`            | Synchronization mode               | `video`, `game`, `music`, `ambient`, `passthrough`, `powersave` |
+| `execution.hdmiSource`      | Active input                       | `input1` to `input4`                                            |
+| `execution.brightness`      | Brightness boost                   | 0–200; 100 is neutral                                           |
+| `execution.hueTarget`       | Entertainment Area                 | Area ID returned by the box                                     |
+| `execution.video.intensity` | Video intensity                    | `subtle`, `moderate`, `high`, `intense`                         |
+| `execution.game.intensity`  | Game intensity                     | `subtle`, `moderate`, `high`, `intense`                         |
+| `execution.music.intensity` | Music intensity                    | `subtle`, `moderate`, `high`, `intense`                         |
+| `hdmi.contentSpecs`         | Current HDMI signal information    | read-only                                                       |
+| `device.overheating`        | Temperature warning                | read-only, only if supported                                    |
+| `device.undervolt`          | Power supply warning               | read-only, only if supported                                    |
 
-## States and compatibility
+Additional states are created only when the box actually reports the matching capability. This avoids misleading controls on different hardware and firmware generations. See [Hue API and state mapping](docs/HUE_SYNC_BOX_API.md) for the complete technical mapping.
 
-Existing roots remain `box_<sanitized-name>` to avoid breaking scripts. Returned API properties are mapped below their resource names (`device`, `hue`, `execution`, `hdmi`, `behavior`). Features are created only when they occur in the API response, so 4K-only and 8K-only properties do not create misleading objects.
+## Settings
 
-Important writable states include:
+- **Execution polling:** updates frequently changing controls; default 3 seconds.
+- **Status polling:** updates HDMI and Hue status; default 15 seconds.
+- **Metadata polling:** updates device, behavior and preset information; default 5 minutes.
+- **IPv4 interface prefix:** optionally limits discovery, for example to `192.168.10.`.
+- **Allow insecure TLS:** diagnostic escape hatch only. Leave it disabled during normal use.
 
-- `execution.syncActive`, `execution.hdmiActive`, `execution.mode`
-- `execution.hdmiSource`, `execution.hueTarget`, `execution.brightness`
-- mode intensity/background settings
-- HDMI input name/type and supported behavior settings
+## Security
 
-`overheating` and `undervolt` are read-only warning indicators. The adapter logs only transitions and exposes an aggregate device warning to Device Manager.
+Normal API requests validate the Sync Box certificate against the Hue Sync Box CA and match its identity to the stored device Unique ID. Authenticated HTTPS uses keep-alive, an 8-second timeout, a one-MiB response limit and bounded retries only for temporary network failures.
 
-## HTTPS security
+`allowInsecureTls` is disabled by default. Enabling it turns off certificate verification and should only be used briefly to diagnose a certificate problem.
 
-Normal requests validate the Sync Box certificate against the Philips Hue Sync Box CA and verify its identity against `device.uniqueId`. HTTPS keep-alive, an 8-second timeout, a one-MiB response limit and bounded retry for transient network failures are enabled.
+## Troubleshooting
 
-For old configurations without a stored Unique ID, the adapter obtains it once from the documented unauthenticated `/api/v1/device` endpoint without sending a token. All authenticated traffic then uses verified TLS. `allowInsecureTls` is disabled by default and should only be enabled temporarily while diagnosing certificate problems.
+- **No box found:** check that ioBroker and the box are in the same network, allow mDNS/UDP 5353, or use manual pairing.
+- **Pairing fails:** press and hold the box button again and start pairing while its LED is blinking.
+- **Certificate identity error:** verify that the configured IP still belongs to the same Sync Box; rediscover it after a DHCP change.
+- **401 / authentication rejected:** pair the box again.
+- **API level below 7:** update the box firmware in the official Hue app.
+- **States do not appear:** restart the adapter after pairing and check the instance log.
+- **No HDMI signal:** inspect `hdmi.contentSpecs` and the `hdmi.input1` to `hdmi.input4` states.
 
-## Polling
-
-- Execution: default 3 seconds
-- HDMI and Hue status: default 15 seconds
-- Device, behavior and presets: default 5 minutes
-
-Intervals are configurable and bounded. API level 7 is the minimum; lower levels produce a firmware-update error. Unknown future mode strings are retained instead of crashing the adapter.
-
-## Local development
-
-The project uses the pinned hardened ioBroker dev-server revision requested for this adapter.
+## Development
 
 ```bash
 npm install
-npm run build
-npm run dev-server setup -- --symlinks
-npm run dev
-```
-
-The first setup command creates a local `.dev-server` profile. `npm run dev` starts ioBroker and watches backend plus Admin/Tab assets. Available checks are:
-
-```bash
 npm run lint
 npm run typecheck
 npm test
 npm run build
 ```
 
-Optional hardware test (never commit these secrets):
-
-```bash
-HUE_SYNC_BOX_HOST=192.168.1.20 \
-HUE_SYNC_BOX_UNIQUE_ID=001788fffe123456 \
-HUE_SYNC_BOX_TOKEN=secret \
-npm run test:hardware
-```
-
-On PowerShell, assign the three values through `$env:HUE_SYNC_BOX_HOST`, `$env:HUE_SYNC_BOX_UNIQUE_ID` and `$env:HUE_SYNC_BOX_TOKEN` first.
-
-## Troubleshooting
-
-- **Discovery finds nothing:** mDNS often does not cross VLANs and container networks. Permit UDP 5353/multicast or use manual pairing.
-- **Certificate identity failure:** verify that the configured IP still belongs to the stored Unique ID. Re-discover the box after DHCP changes.
-- **401:** pair again; authentication errors are deliberately not retried.
-- **API level below 7:** update the Sync Box firmware using the official app.
-- **No HDMI controls:** check `hdmi.contentSpecs`, `videoSyncSupported` and the input status in the adapter tab.
-
-See [the endpoint and state mapping](docs/HUE_SYNC_BOX_API.md) and [the repository audit](docs/REPOSITORY_AUDIT.md) for implementation details.
-
-## Changelog
-
-### 0.4.0
-
-- Complete strict-TypeScript backend and API rewrite
-- Verified Hue CA TLS, discovery, modern pairing and Device Manager v3
-- React 19/MUI 9 Admin UI and control tab based on `@iobroker/gui-components`
-- Capability-based 4K/8K states, API fixtures, unit tests and Node 22/24 CI
-
-Older changes are available in the Git history and published release notes.
+Local hardware tests require `HUE_SYNC_BOX_HOST`, `HUE_SYNC_BOX_UNIQUE_ID` and `HUE_SYNC_BOX_TOKEN` as environment variables. Never commit these values.
 
 ## License
 

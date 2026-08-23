@@ -7,19 +7,16 @@ import {
     Card,
     CardContent,
     Chip,
-    FormControl,
+    CircularProgress,
     FormControlLabel,
-    InputLabel,
-    MenuItem,
-    Select,
-    Slider,
     Stack,
     Switch,
     TextField,
     Typography,
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import LinkIcon from '@mui/icons-material/Link';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import {
     GenericApp,
     I18n,
@@ -35,84 +32,229 @@ interface DeviceConfig {
     uniqueId?: string;
     disabled?: boolean;
 }
+
+interface DiscoveredSyncBox {
+    name: string;
+    host: string;
+    uniqueId?: string;
+    port: number;
+}
+
+interface AdapterResponse<T> {
+    ok: boolean;
+    result?: T;
+    error?: string;
+}
+
 interface AppState extends GenericAppState {
-    liveStates: Record<string, ioBroker.State>;
-    selectedRoot: string;
+    busy: boolean;
+    discovered: DiscoveredSyncBox[];
+    manualHost: string;
+    manualName: string;
+    notice?: { severity: 'success' | 'error' | 'info'; text: string };
 }
 
 const translations = {
-    en: { Settings: 'Settings', Control: 'Control', Polling: 'Polling', Security: 'Security' },
-    de: { Settings: 'Einstellungen', Control: 'Steuerung', Polling: 'Abfrageintervalle', Security: 'Sicherheit' },
+    en: {
+        Settings: 'Settings',
+        Pairing: 'Find and pair a Sync Box',
+        Polling: 'Polling intervals',
+        Security: 'Network and security',
+    },
+    de: {
+        Settings: 'Einstellungen',
+        Pairing: 'Sync Box suchen und koppeln',
+        Polling: 'Abfrageintervalle',
+        Security: 'Netzwerk und Sicherheit',
+    },
 };
-const SYNC_MODES = ['powersave', 'passthrough', 'video', 'game', 'music', 'ambient'];
-
-function rootId(name: string): string {
-    return `box_${name
-        .toLowerCase()
-        .replace(/ä/g, 'ae')
-        .replace(/ö/g, 'oe')
-        .replace(/ü/g, 'ue')
-        .replace(/ß/g, 'ss')
-        .replace(/[^a-z0-9]/g, '_')}`;
-}
 
 export default class App extends GenericApp<GenericAppProps, AppState> {
-    private readonly isTab = window.location.pathname.endsWith('/tab.html');
-    private readonly statePattern: string;
-    private readonly stateHandler = (id: string, state: ioBroker.State | null | undefined): void => {
-        this.setState(current => ({ liveStates: { ...current.liveStates, ...(state ? { [id]: state } : {}) } }));
-    };
-
     public constructor(props: GenericAppProps) {
         const settings: GenericAppSettings = {
             ...props,
             adapterName: 'hue-sync-box',
-            bottomButtons: !window.location.pathname.endsWith('/tab.html'),
+            bottomButtons: true,
             doNotLoadAllObjects: true,
             translations,
             socket: { port: window.location.port === '3000' ? 8081 : Number(window.location.port) || undefined },
         };
         super(props, settings);
-        this.state = { ...this.state, liveStates: {}, selectedRoot: '' };
-        this.statePattern = `${this.adapterName}.${this.instance}.box_*.*`;
-    }
-
-    public override onConnectionReady(): void {
-        super.onConnectionReady();
-        if (this.isTab) {
-            void this.loadLiveStates(true);
-        }
-    }
-
-    public override componentWillUnmount(): void {
-        if (this.isTab) {
-            this.socket.unsubscribeState(this.statePattern, this.stateHandler);
-        }
-        super.componentWillUnmount();
-    }
-
-    private async loadLiveStates(subscribe = false): Promise<void> {
-        const liveStates = await this.socket.getStates(this.statePattern);
-        const selectedRoot = this.state.selectedRoot || rootId(this.devices[0]?.name ?? '');
-        this.setState({ liveStates, selectedRoot });
-        if (subscribe) {
-            await this.socket.subscribeState(this.statePattern, this.stateHandler);
-        }
+        this.state = {
+            ...this.state,
+            busy: false,
+            discovered: [],
+            manualHost: '',
+            manualName: '',
+        };
     }
 
     private get devices(): DeviceConfig[] {
         return Array.isArray(this.state.native.devices) ? (this.state.native.devices as DeviceConfig[]) : [];
     }
 
-    private value(path: string): ioBroker.StateValue | undefined {
-        return this.state.liveStates[`${this.adapterName}.${this.instance}.${this.state.selectedRoot}.${path}`]?.val;
+    private async sendCommand<T>(command: string, payload: Record<string, unknown>): Promise<T> {
+        const response = await this.socket.sendTo<AdapterResponse<T>>(
+            `${this.adapterName}.${this.instance}`,
+            command,
+            payload,
+        );
+        if (!response.ok) {
+            throw new Error(response.error || 'The adapter did not complete the request.');
+        }
+        return response.result as T;
     }
 
-    private async write(path: string, value: ioBroker.StateValue): Promise<void> {
-        await this.socket.setState(`${this.adapterName}.${this.instance}.${this.state.selectedRoot}.${path}`, {
-            val: value,
-            ack: false,
-        });
+    private async discover(): Promise<void> {
+        this.setState({ busy: true, notice: undefined });
+        try {
+            const discovered = await this.sendCommand<DiscoveredSyncBox[]>('discover', { timeoutMs: 5_000 });
+            this.setState({
+                discovered,
+                notice: {
+                    severity: discovered.length ? 'success' : 'info',
+                    text: discovered.length
+                        ? `${discovered.length} Sync Box${discovered.length === 1 ? '' : 'es'} found.`
+                        : 'No Sync Box found. Check that ioBroker and the box are in the same network, or pair manually.',
+                },
+            });
+        } catch (error) {
+            this.setState({ notice: { severity: 'error', text: App.errorText(error) } });
+        } finally {
+            this.setState({ busy: false });
+        }
+    }
+
+    private async pair(device?: DiscoveredSyncBox): Promise<void> {
+        if (this.state.changed) {
+            this.setState({
+                notice: {
+                    severity: 'info',
+                    text: 'Save pending setting changes before pairing a Sync Box.',
+                },
+            });
+            return;
+        }
+        const host = (device?.host ?? this.state.manualHost).trim();
+        if (!host) {
+            this.setState({ notice: { severity: 'error', text: 'Enter an IP address or hostname first.' } });
+            return;
+        }
+        this.setState({ busy: true, notice: undefined });
+        try {
+            await this.sendCommand<{ restartRequired: boolean }>('pairAndSave', {
+                host,
+                uniqueId: device?.uniqueId,
+                name: device?.name || this.state.manualName,
+            });
+            this.setState({
+                notice: {
+                    severity: 'success',
+                    text: 'Pairing succeeded and the box was saved. The settings page will reload now.',
+                },
+            });
+            window.setTimeout(() => window.location.reload(), 1_500);
+        } catch (error) {
+            this.setState({ notice: { severity: 'error', text: App.errorText(error) } });
+        } finally {
+            this.setState({ busy: false });
+        }
+    }
+
+    private static errorText(error: unknown): string {
+        return error instanceof Error ? error.message : String(error);
+    }
+
+    private renderPairing(): JSX.Element {
+        return (
+            <Card>
+                <CardContent>
+                    <Typography
+                        variant="h6"
+                        gutterBottom
+                    >
+                        {I18n.t('Pairing')}
+                    </Typography>
+                    <Alert
+                        severity="info"
+                        sx={{ mb: 2 }}
+                    >
+                        Hold the button on the Sync Box for about three seconds. While the light is blinking, start
+                        pairing below.
+                    </Alert>
+                    <Button
+                        variant="contained"
+                        startIcon={
+                            this.state.busy ? (
+                                <CircularProgress
+                                    size={18}
+                                    color="inherit"
+                                />
+                            ) : (
+                                <SearchIcon />
+                            )
+                        }
+                        disabled={this.state.busy}
+                        onClick={() => void this.discover()}
+                    >
+                        Search local network
+                    </Button>
+                    {this.state.discovered.length > 0 && (
+                        <Stack
+                            spacing={1}
+                            sx={{ mt: 2 }}
+                        >
+                            {this.state.discovered.map(device => (
+                                <Box
+                                    key={device.uniqueId ?? device.host}
+                                    className="deviceRow"
+                                >
+                                    <span>{device.name}</span>
+                                    <code>{device.host}</code>
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<LinkIcon />}
+                                        disabled={this.state.busy}
+                                        onClick={() => void this.pair(device)}
+                                    >
+                                        Pair
+                                    </Button>
+                                </Box>
+                            ))}
+                        </Stack>
+                    )}
+                    <Typography
+                        variant="subtitle1"
+                        sx={{ mt: 3, mb: 1 }}
+                    >
+                        Manual pairing
+                    </Typography>
+                    <Stack
+                        direction={{ xs: 'column', md: 'row' }}
+                        spacing={2}
+                    >
+                        <TextField
+                            label="IP address or hostname"
+                            value={this.state.manualHost}
+                            onChange={event => this.setState({ manualHost: event.target.value })}
+                        />
+                        <TextField
+                            label="Name (optional)"
+                            value={this.state.manualName}
+                            onChange={event => this.setState({ manualName: event.target.value })}
+                        />
+                        <Button
+                            variant="outlined"
+                            startIcon={<LinkIcon />}
+                            disabled={this.state.busy || !this.state.manualHost.trim()}
+                            onClick={() => void this.pair()}
+                        >
+                            Pair manually
+                        </Button>
+                    </Stack>
+                </CardContent>
+            </Card>
+        );
     }
 
     private renderSettings(): JSX.Element {
@@ -124,10 +266,8 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                         <Typography variant="h4">Hue Sync Box</Typography>
                         <Typography color="text.secondary">{I18n.t('Settings')}</Typography>
                     </Box>
-                    <Alert severity="info">
-                        Use ioBroker Device Manager to discover and pair boxes. This page only contains adapter-wide
-                        settings.
-                    </Alert>
+                    {this.state.notice && <Alert severity={this.state.notice.severity}>{this.state.notice.text}</Alert>}
+                    {this.renderPairing()}
                     <Card>
                         <CardContent>
                             <Typography
@@ -176,7 +316,7 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                                 variant="h6"
                                 gutterBottom
                             >
-                                Network
+                                {I18n.t('Security')}
                             </Typography>
                             <TextField
                                 fullWidth
@@ -206,6 +346,9 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                     <Card>
                         <CardContent>
                             <Typography variant="h6">Configured boxes ({devices.length})</Typography>
+                            {!devices.length && (
+                                <Typography color="text.secondary">No Sync Box configured yet.</Typography>
+                            )}
                             <Stack
                                 spacing={1}
                                 sx={{ mt: 1 }}
@@ -219,242 +362,28 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
                                         <code>{device.ip}</code>
                                         <Chip
                                             size="small"
-                                            label={device.disabled ? 'disabled' : 'managed in Device Manager'}
+                                            label={device.disabled ? 'disabled' : 'configured'}
                                         />
                                     </Box>
                                 ))}
                             </Stack>
                         </CardContent>
                     </Card>
+                    <Alert severity="info">
+                        Daily control is provided through the adapter states. Use them in VIS-2, scripts or your own
+                        dashboard.
+                    </Alert>
                 </Stack>
                 {this.renderHelperDialogs()}
             </Box>
         );
     }
 
-    private renderControl(): JSX.Element {
-        if (!this.devices.length) {
-            return (
-                <Box className="page">
-                    <Alert severity="info">No Sync Box configured. Pair one in Device Manager.</Alert>
-                </Box>
-            );
-        }
-        const reachable = this.value('reachable') === true;
-        const brightness = Number(this.value('execution.brightness') ?? 100);
-        const currentMode = String(this.value('execution.mode') ?? '');
-        const modes = [...SYNC_MODES];
-        if (currentMode && !modes.includes(currentMode)) {
-            modes.push(currentMode);
-        }
-        return (
-            <Box className="page">
-                <Stack spacing={3}>
-                    <Stack
-                        direction={{ xs: 'column', sm: 'row' }}
-                        sx={{ justifyContent: 'space-between', gap: 2 }}
-                    >
-                        <Box>
-                            <Typography variant="h4">Hue Sync Box</Typography>
-                            <Stack
-                                direction="row"
-                                spacing={1}
-                            >
-                                <Chip
-                                    color={reachable ? 'success' : 'error'}
-                                    label={reachable ? 'Connected' : 'Disconnected'}
-                                />
-                                <Chip label={String(this.value('hdmi.contentSpecs') ?? 'No HDMI signal')} />
-                            </Stack>
-                        </Box>
-                        <Stack
-                            direction="row"
-                            spacing={1}
-                        >
-                            <FormControl sx={{ minWidth: 220 }}>
-                                <InputLabel>Sync Box</InputLabel>
-                                <Select
-                                    label="Sync Box"
-                                    value={this.state.selectedRoot}
-                                    onChange={event => this.setState({ selectedRoot: event.target.value })}
-                                >
-                                    {this.devices.map(device => (
-                                        <MenuItem
-                                            key={device.ip}
-                                            value={rootId(device.name)}
-                                        >
-                                            {device.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                            <Button
-                                aria-label="Refresh"
-                                variant="outlined"
-                                onClick={() => void this.loadLiveStates()}
-                            >
-                                <RefreshIcon />
-                            </Button>
-                        </Stack>
-                    </Stack>
-                    {(this.value('device.overheating') === true || this.value('device.undervolt') === true) && (
-                        <Alert severity="error">
-                            The Sync Box reports{' '}
-                            {this.value('device.overheating') === true ? 'overheating' : 'undervoltage'}. Check the
-                            device immediately.
-                        </Alert>
-                    )}
-                    <Box className="grid">
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6">Power & sync</Typography>
-                                <Stack>
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={this.value('execution.hdmiActive') === true}
-                                                onChange={event =>
-                                                    this.write('execution.hdmiActive', event.target.checked)
-                                                }
-                                            />
-                                        }
-                                        label="HDMI active"
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={this.value('execution.syncActive') === true}
-                                                onChange={event =>
-                                                    this.write('execution.syncActive', event.target.checked)
-                                                }
-                                            />
-                                        }
-                                        label="Light sync active"
-                                    />
-                                </Stack>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6">Mode</Typography>
-                                <FormControl fullWidth>
-                                    <InputLabel>Sync mode</InputLabel>
-                                    <Select
-                                        label="Sync mode"
-                                        value={currentMode}
-                                        onChange={event => this.write('execution.mode', event.target.value)}
-                                    >
-                                        {modes.map(mode => (
-                                            <MenuItem
-                                                key={mode}
-                                                value={mode}
-                                            >
-                                                {mode}
-                                                {!SYNC_MODES.includes(mode) ? ' (new)' : ''}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6">HDMI source</Typography>
-                                <FormControl fullWidth>
-                                    <InputLabel>Input</InputLabel>
-                                    <Select
-                                        label="Input"
-                                        value={String(this.value('execution.hdmiSource') ?? '')}
-                                        onChange={event => this.write('execution.hdmiSource', event.target.value)}
-                                    >
-                                        {[1, 2, 3, 4].map(input => (
-                                            <MenuItem
-                                                key={input}
-                                                value={`input${input}`}
-                                            >
-                                                HDMI {input}: {String(this.value(`hdmi.input${input}.name`) ?? '')}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6">Brightness boost</Typography>
-                                <Typography color="text.secondary">0–200%, 100% is neutral</Typography>
-                                <Slider
-                                    value={brightness}
-                                    min={0}
-                                    max={200}
-                                    valueLabelDisplay="auto"
-                                    onChangeCommitted={(_, value) => this.write('execution.brightness', value)}
-                                />
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6">Entertainment area</Typography>
-                                <FormControl fullWidth>
-                                    <InputLabel>Area</InputLabel>
-                                    <Select
-                                        label="Area"
-                                        value={String(this.value('execution.hueTarget') ?? '')}
-                                        onChange={event => this.write('execution.hueTarget', event.target.value)}
-                                    >
-                                        {this.groupOptions()}
-                                    </Select>
-                                </FormControl>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6">Signal</Typography>
-                                <Typography>
-                                    Video sync:{' '}
-                                    {this.value('hdmi.videoSyncSupported') === true ? 'supported' : 'not supported'}
-                                </Typography>
-                                <Typography>
-                                    Audio sync:{' '}
-                                    {this.value('hdmi.audioSyncSupported') === true ? 'supported' : 'not supported'}
-                                </Typography>
-                                <Typography>Hue: {String(this.value('hue.connectionState') ?? 'unknown')}</Typography>
-                            </CardContent>
-                        </Card>
-                    </Box>
-                </Stack>
-            </Box>
-        );
-    }
-
-    private groupOptions(): JSX.Element[] {
-        const prefix = `${this.adapterName}.${this.instance}.${this.state.selectedRoot}.hue.groups.`;
-        return Object.entries(this.state.liveStates)
-            .filter(([id]) => id.startsWith(prefix) && id.endsWith('.name'))
-            .map(([id, state]) => {
-                const groupId = id.slice(prefix.length, -'.name'.length);
-                return (
-                    <MenuItem
-                        key={groupId}
-                        value={groupId}
-                    >
-                        {String(state.val ?? groupId)}
-                    </MenuItem>
-                );
-            });
-    }
-
     public override render(): JSX.Element {
         return (
             <StyledEngineProvider injectFirst>
                 <ThemeProvider theme={this.state.theme}>
-                    {!this.state.loaded ? (
-                        <Loader themeType={this.state.themeType} />
-                    ) : this.isTab ? (
-                        this.renderControl()
-                    ) : (
-                        this.renderSettings()
-                    )}
+                    {!this.state.loaded ? <Loader themeType={this.state.themeType} /> : this.renderSettings()}
                 </ThemeProvider>
             </StyledEngineProvider>
         );

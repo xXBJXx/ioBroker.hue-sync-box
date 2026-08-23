@@ -3,7 +3,6 @@ import { HueSyncBoxClient } from './api/HueSyncBoxClient';
 import { errorMessage } from './api/errors';
 import { normalizeConfig, type NormalizedConfig } from './config/migration';
 import { SyncBoxManager } from './device/SyncBoxManager';
-import { HueSyncBoxDeviceManagement } from './device/HueSyncBoxDeviceManagement';
 import { DiscoveryService } from './discovery/DiscoveryService';
 
 interface MessagePayload {
@@ -12,6 +11,7 @@ interface MessagePayload {
     timeoutMs?: number;
     appName?: string;
     instanceName?: string;
+    name?: string;
 }
 
 /**
@@ -21,20 +21,12 @@ export class HueSyncBox extends utils.Adapter {
     private manager?: SyncBoxManager;
     private readonly discovery = new DiscoveryService();
     private normalizedConfig?: NormalizedConfig;
-    private readonly deviceManagement: HueSyncBoxDeviceManagement;
 
     /**
      *
      */
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({ ...options, name: 'hue-sync-box' });
-        this.deviceManagement = new HueSyncBoxDeviceManagement(this, {
-            getDevices: () => this.normalizedConfig?.devices ?? normalizeConfig(this.config).devices,
-            getDiagnostics: () => this.manager?.diagnostics() ?? { devices: {} },
-            discover: () => this.discovery.discover(5_000, this.normalizedConfig?.discoveryInterface),
-            pair: (host, uniqueId) => this.pairAndSave(host, uniqueId),
-            refresh: async () => this.manager?.refresh(),
-        });
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         this.on('message', this.onMessage.bind(this));
@@ -50,7 +42,7 @@ export class HueSyncBox extends utils.Adapter {
             );
         }
         if (!this.normalizedConfig.devices.length) {
-            this.log.info('No Hue Sync Box configured. Use the Device Manager or adapter settings to pair a box.');
+            this.log.info('No Hue Sync Box configured. Open the adapter settings to discover and pair a box.');
             return;
         }
         this.manager = new SyncBoxManager(this, this.normalizedConfig);
@@ -62,9 +54,6 @@ export class HueSyncBox extends utils.Adapter {
     }
 
     private async onMessage(message: ioBroker.Message): Promise<void> {
-        if (message.command?.startsWith('dm:')) {
-            return;
-        }
         if (!message.command || !message.callback) {
             return;
         }
@@ -82,6 +71,13 @@ export class HueSyncBox extends utils.Adapter {
                     break;
                 case 'register':
                     result = await this.register(payload);
+                    break;
+                case 'pairAndSave':
+                    if (!payload.host) {
+                        throw new Error('Missing host');
+                    }
+                    await this.pairAndSave(payload.host, payload.uniqueId, payload.name);
+                    result = { restartRequired: true };
                     break;
                 case 'diagnostics':
                     result = this.manager?.diagnostics() ?? { devices: {} };
@@ -128,7 +124,7 @@ export class HueSyncBox extends utils.Adapter {
         }
     }
 
-    private async pairAndSave(host: string, uniqueId?: string): Promise<void> {
+    private async pairAndSave(host: string, uniqueId?: string, name?: string): Promise<void> {
         const registration = (await this.register({ host, uniqueId })) as {
             /**
              *
@@ -150,7 +146,7 @@ export class HueSyncBox extends utils.Adapter {
             throw new Error('This Sync Box is already configured');
         }
         devices.push({
-            name: `Hue Sync Box ${devices.length + 1}`,
+            name: name?.trim() || `Hue Sync Box ${devices.length + 1}`,
             ip: host,
             token: registration.accessToken,
             uniqueId: registration.uniqueId,

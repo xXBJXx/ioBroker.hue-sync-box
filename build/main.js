@@ -39,7 +39,6 @@ const HueSyncBoxClient_1 = require("./api/HueSyncBoxClient");
 const errors_1 = require("./api/errors");
 const migration_1 = require("./config/migration");
 const SyncBoxManager_1 = require("./device/SyncBoxManager");
-const HueSyncBoxDeviceManagement_1 = require("./device/HueSyncBoxDeviceManagement");
 const DiscoveryService_1 = require("./discovery/DiscoveryService");
 /**
  *
@@ -48,19 +47,11 @@ class HueSyncBox extends utils.Adapter {
     manager;
     discovery = new DiscoveryService_1.DiscoveryService();
     normalizedConfig;
-    deviceManagement;
     /**
      *
      */
     constructor(options = {}) {
         super({ ...options, name: 'hue-sync-box' });
-        this.deviceManagement = new HueSyncBoxDeviceManagement_1.HueSyncBoxDeviceManagement(this, {
-            getDevices: () => this.normalizedConfig?.devices ?? (0, migration_1.normalizeConfig)(this.config).devices,
-            getDiagnostics: () => this.manager?.diagnostics() ?? { devices: {} },
-            discover: () => this.discovery.discover(5_000, this.normalizedConfig?.discoveryInterface),
-            pair: (host, uniqueId) => this.pairAndSave(host, uniqueId),
-            refresh: async () => this.manager?.refresh(),
-        });
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         this.on('message', this.onMessage.bind(this));
@@ -73,7 +64,7 @@ class HueSyncBox extends utils.Adapter {
             this.log.warn('TLS certificate validation is disabled by configuration. This should only be used temporarily for diagnostics.');
         }
         if (!this.normalizedConfig.devices.length) {
-            this.log.info('No Hue Sync Box configured. Use the Device Manager or adapter settings to pair a box.');
+            this.log.info('No Hue Sync Box configured. Open the adapter settings to discover and pair a box.');
             return;
         }
         this.manager = new SyncBoxManager_1.SyncBoxManager(this, this.normalizedConfig);
@@ -83,9 +74,6 @@ class HueSyncBox extends utils.Adapter {
         await this.manager?.handleStateChange(id, state);
     }
     async onMessage(message) {
-        if (message.command?.startsWith('dm:')) {
-            return;
-        }
         if (!message.command || !message.callback) {
             return;
         }
@@ -98,6 +86,13 @@ class HueSyncBox extends utils.Adapter {
                     break;
                 case 'register':
                     result = await this.register(payload);
+                    break;
+                case 'pairAndSave':
+                    if (!payload.host) {
+                        throw new Error('Missing host');
+                    }
+                    await this.pairAndSave(payload.host, payload.uniqueId, payload.name);
+                    result = { restartRequired: true };
                     break;
                 case 'diagnostics':
                     result = this.manager?.diagnostics() ?? { devices: {} };
@@ -142,7 +137,7 @@ class HueSyncBox extends utils.Adapter {
             client.close();
         }
     }
-    async pairAndSave(host, uniqueId) {
+    async pairAndSave(host, uniqueId, name) {
         const registration = (await this.register({ host, uniqueId }));
         const instanceId = `system.adapter.${this.namespace}`;
         const instance = await this.getForeignObjectAsync(instanceId);
@@ -154,7 +149,7 @@ class HueSyncBox extends utils.Adapter {
             throw new Error('This Sync Box is already configured');
         }
         devices.push({
-            name: `Hue Sync Box ${devices.length + 1}`,
+            name: name?.trim() || `Hue Sync Box ${devices.length + 1}`,
             ip: host,
             token: registration.accessToken,
             uniqueId: registration.uniqueId,

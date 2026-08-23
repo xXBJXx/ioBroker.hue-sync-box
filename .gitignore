@@ -17,11 +17,6 @@ admin/i18n/flat.txt
 admin/i18n/*/flat.txt
 admin/src/.DS_Store
 
-# Local rewrite planning documents (must never be committed)
-ROADMAP.md
-ARCHITECTURE.md
-docs/ARCHITECTURE.md
-AGENTS.md
 .commitinfo
 
 # Local copy of the Philips Hue developer documentation

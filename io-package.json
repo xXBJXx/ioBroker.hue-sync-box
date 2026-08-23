@@ -4,17 +4,17 @@
         "version": "0.4.0",
         "news": {
             "0.4.0": {
-                "en": "Secure API rewrite with discovery, Device Manager and a modern control tab",
-                "de": "Sicherer API-Rewrite mit Discovery, Device Manager und modernem Steuerungs-Tab",
-                "ru": "Безопасная переработка API с обнаружением, диспетчером устройств и современной вкладкой управления",
-                "pt": "Reescrita segura da API com descoberta, gestor de dispositivos e separador de controlo moderno",
-                "nl": "Veilige API-herschrijving met ontdekking, apparaatbeheer en modern bedieningstabblad",
-                "fr": "Réécriture sécurisée de l’API avec découverte, gestionnaire d’appareils et onglet de contrôle moderne",
-                "it": "Riscrittura sicura dell’API con rilevamento, gestione dispositivi e scheda di controllo moderna",
-                "es": "Reescritura segura de la API con descubrimiento, gestor de dispositivos y pestaña de control moderna",
-                "pl": "Bezpieczna przebudowa API z wykrywaniem, menedżerem urządzeń i nowoczesną kartą sterowania",
-                "uk": "Безпечне переписування API з пошуком, менеджером пристроїв і сучасною вкладкою керування",
-                "zh-cn": "安全重写 API，新增发现、设备管理器和现代控制选项卡"
+                "en": "Secure API rewrite with discovery, guided pairing and complete ioBroker states",
+                "de": "Sicherer API-Rewrite mit Suche, geführtem Pairing und vollständigen ioBroker-States",
+                "ru": "Безопасная переработка API с обнаружением, пошаговым сопряжением и полным набором состояний ioBroker",
+                "pt": "Reescrita segura da API com descoberta, emparelhamento guiado e estados ioBroker completos",
+                "nl": "Veilige API-herschrijving met ontdekking, begeleid koppelen en volledige ioBroker-statussen",
+                "fr": "Réécriture sécurisée de l’API avec découverte, appairage guidé et états ioBroker complets",
+                "it": "Riscrittura sicura dell’API con rilevamento, associazione guidata e stati ioBroker completi",
+                "es": "Reescritura segura de la API con descubrimiento, emparejamiento guiado y estados ioBroker completos",
+                "pl": "Bezpieczna przebudowa API z wykrywaniem, prowadzonym parowaniem i pełnymi stanami ioBroker",
+                "uk": "Безпечне переписування API з пошуком, покроковим сполученням і повним набором станів ioBroker",
+                "zh-cn": "安全重写 API，支持发现、引导式配对和完整的 ioBroker 状态"
             },
             "0.3.5": {
                 "en": "Dependency update",
@@ -151,12 +151,10 @@
         "tier": 2,
         "singleton": true,
         "supportedMessages": {
-            "custom": true,
-            "deviceManager": true
+            "custom": true
         },
         "adminUI": {
-            "config": "materialize",
-            "tab": "materialize"
+            "config": "materialize"
         },
         "eraseOnUpload": true,
         "dependencies": [

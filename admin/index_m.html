@@ -2,11 +2,8 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-        />
-        <title>Hue Sync Box control</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Hue Sync Box settings</title>
         <script>
             const script = document.createElement('script');
             window.registerSocketOnLoad = cb => {
@@ -20,12 +17,10 @@
                     : './../../lib/js/socket.io.js';
             document.head.appendChild(script);
         </script>
+      <script type="module" crossorigin src="./assets/index_m-zcC79gqY.js"></script>
+      <link rel="stylesheet" crossorigin href="./assets/index_m-C9ra2Jwt.css">
     </head>
     <body>
         <div id="root"></div>
-        <script
-            type="module"
-            src="/src/index.tsx"
-        ></script>
     </body>
 </html>
