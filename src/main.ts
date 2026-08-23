@@ -152,7 +152,7 @@ export class HueSyncBox extends utils.Adapter {
             uniqueId: registration.uniqueId,
             id: devices.length,
         });
-        await this.extendForeignObjectAsync(instanceId, { native: { ...instance.native, devices } });
+        await this.extendForeignObject(instanceId, { native: { ...instance.native, devices } });
         this.normalizedConfig = { ...normalizeConfig(instance.native as ioBroker.AdapterConfig), devices };
     }
 

@@ -32,7 +32,7 @@ class StateManager {
      *
      */
     async ensureDevice(root, name) {
-        await this.adapter.extendObjectAsync(root, { type: 'device', common: { name }, native: {} });
+        await this.adapter.extendObject(root, { type: 'device', common: { name }, native: {} });
         await this.writePrimitive(root, 'reachable', false);
         await this.writePrimitive(root, 'json', '{}');
     }
@@ -83,7 +83,7 @@ class StateManager {
         if (parent) {
             await this.ensureChannel(root, parent);
         }
-        await this.adapter.extendObjectAsync(id, {
+        await this.adapter.extendObject(id, {
             type: 'channel',
             common: { name: path.split('.').at(-1) ?? path },
             native: {},
@@ -97,7 +97,7 @@ class StateManager {
             await this.ensureChannel(root, parent);
         }
         if (!this.knownStates.has(id)) {
-            await this.adapter.extendObjectAsync(id, {
+            await this.adapter.extendObject(id, {
                 type: 'state',
                 common: (0, definitions_1.stateCommon)(path, value),
                 native: { apiPath: path },

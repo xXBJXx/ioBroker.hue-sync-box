@@ -98,20 +98,6 @@ Normale API-Anfragen prüfen das Zertifikat der Sync Box gegen die Hue-Sync-Box-
 - **States fehlen:** Adapter nach der Kopplung neu starten und das Instanzprotokoll prüfen.
 - **Kein HDMI-Signal:** `hdmi.contentSpecs` und die States `hdmi.input1` bis `hdmi.input4` prüfen.
 
-## Entwicklung
-
-Die [Projekt- und Entwicklungsdokumentation](docs/PROJECT_GUIDE.md) beschreibt Laufzeitkomponenten, Konfigurationsablauf, Sicherheitsgrenzen, Übersetzungen, Tests und Veröffentlichung. Die [Hue-API-Zuordnung](docs/HUE_SYNC_BOX_API.md) dokumentiert Endpunkte, Fähigkeiten, State-Semantik und Wiederholungslogik.
-
-```bash
-npm install
-npm run lint
-npm run typecheck
-npm test
-npm run build
-```
-
-Lokale Hardwaretests verwenden `HUE_SYNC_BOX_HOST`, `HUE_SYNC_BOX_UNIQUE_ID` und `HUE_SYNC_BOX_TOKEN` als Umgebungsvariablen. Diese Werte niemals committen.
-
 ## Changelog
 
 <!--
@@ -121,8 +107,8 @@ Lokale Hardwaretests verwenden `HUE_SYNC_BOX_HOST`, `HUE_SYNC_BOX_UNIQUE_ID` und
 
 ### **WORK IN PROGRESS**
 
-- (xXBJXx) Replaced deprecated ioBroker state writes with the current Promise-based `setState` API.
-- (xXBJXx) Added complete Admin UI translations for all eleven ioBroker languages and documented the project internals.
+- (xXBJXx) Replaced deprecated ioBroker state and object writes with the current Promise-based APIs.
+- (xXBJXx) Added complete Admin UI translations for all eleven ioBroker languages.
 - (xXBJXx) Reworked the adapter with a secure, strictly typed Hue Sync Box API client and capability-based support for 4K and 8K models.
 - (xXBJXx) Added local discovery and guided pairing directly to the adapter settings.
 - (xXBJXx) Added complete state-based control for VIS-2, scripts and custom ioBroker interfaces.
