@@ -1,125 +1,121 @@
-![Logo](admin/hueSyncBox.png)
 # ioBroker.hue-sync-box
 
+![Logo](admin/hueSyncBox.png)
+
 [![NPM version](https://img.shields.io/npm/v/iobroker.hue-sync-box.svg)](https://www.npmjs.com/package/iobroker.hue-sync-box)
-[![Downloads](https://img.shields.io/npm/dm/iobroker.hue-sync-box.svg)](https://www.npmjs.com/package/iobroker.hue-sync-box)
-![Number of Installations](https://iobroker.live/badges/hue-sync-box-installed.svg)
-![Current version in stable repository](https://iobroker.live/badges/hue-sync-box-stable.svg)
+[![Tests](https://github.com/xXBJXx/ioBroker.hue-sync-box/actions/workflows/test-and-release.yml/badge.svg)](https://github.com/xXBJXx/ioBroker.hue-sync-box/actions/workflows/test-and-release.yml)
 
-![Test and Release](https://github.com/xXBJXx/ioBroker.hue-sync-box/workflows/Test%20and%20Release/badge.svg)
+Secure local control and monitoring for the Philips Hue Play HDMI Sync Box 4K and 8K.
 
-## hue-sync-box adapter for ioBroker
+## Requirements
 
-**This adapter uses Sentry libraries to automatically report exceptions and code errors to the developers.** For more details and for information 
-how to disable the error reporting see [Sentry-Plugin Documentation](https://github.com/ioBroker/plugin-sentry#plugin-sentry)! Sentry reporting is used starting with js-controller 3.0. 
+- Node.js 22.18 or newer
+- ioBroker js-controller 7.2.2 or newer
+- ioBroker Admin 8.0.0 or newer
+- A Sync Box already set up in the official Philips Hue app
+- IPv4 connectivity from the ioBroker host to TCP port 443 on the box
 
-## The adapter requires a Node.js version >= 16.x
+Admin 8 is required because the current official `@iobroker/gui-components` package uses the Admin 8 / React 19 UI runtime. This is intentionally higher than the otherwise sufficient Admin 7.8.23.
 
-### What is the Philips Hue Sync Box?
+## Setup and pairing
 
-The Philips Hue Sync Box is a device that allows you to synchronize the colors and lighting effects of your Philips Hue lights with the screen of your
-computer screen. This is possible by the Sync Box detecting the colors and light effects of your screen and transmitting them to your Philips
-Hue luminaires.
+1. Open ioBroker **Device Manager** and expand the adapter instance.
+2. Choose **Discover Sync Boxes**. Discovery uses `_huesync._tcp` over mDNS.
+3. If mDNS cannot cross your Docker, LXC or VLAN boundary, choose **Pair manually** and enter an IPv4 address or hostname.
+4. Hold the button on the Sync Box for about three seconds, confirm the prompt, and pair.
+5. Restart the adapter instance after a newly paired box was saved.
 
-### What can the adapter do?
+The registration token is stored in `native.devices[].token` using ioBroker's `encryptedNative` and `protectedNative` handling. It is never included in diagnostics or logs. Existing `devices` arrays from adapter 0.3.x remain supported.
 
-The adapter polls the Philips Hue Sync Box API every 15 seconds and updates the data points accordingly.
-There are some data points that can change the settings of the Sync Box (e.g. the sync on/off switch, switch the HDMI inputs, etc.).
-Any change to the data points is immediately sent to the Philips Hue Sync Box and triggers an update of the data points.
-Multiple Philips Hue Sync boxes can be created at the same time.
+## User interfaces
 
-## What is required to use the adapter?
+- **Adapter settings:** global polling intervals, optional IPv4 interface prefix and the explicitly unsafe TLS diagnostic switch.
+- **Device Manager:** discovery, pairing, reachability, firmware/API information, Wi-Fi strength, warnings and refresh.
+- **Adapter tab:** daily control of HDMI power, light sync, mode, input, brightness (0–200; 100 is neutral), Entertainment Area and signal status.
 
-- Philips Hue Sync Box IP address (IPv4 only)
-- Hue Sync Box token (see below)
+The two operational UIs intentionally do not duplicate each other. Firmware update and software restart are not exposed as ordinary writable states because they require an explicit confirmation workflow.
 
-## How do I add the Philips Hue Sync Box to the adapter?
+## States and compatibility
 
-1. Open the adapter configuration and click on the button "Add box".
-2. enter a name for the box, the name must be only 1x because it will be used as ID.
-3. Enter the IP address of the box. (IPv4 only) (small hint: when entering the IP address, a dot will be inserted automatically at every 3rd number)
+Existing roots remain `box_<sanitized-name>` to avoid breaking scripts. Returned API properties are mapped below their resource names (`device`, `hue`, `execution`, `hdmi`, `behavior`). Features are created only when they occur in the API response, so 4K-only and 8K-only properties do not create misleading objects.
 
-   ![name_ip_token](admin/media/name_ip_token.png)
-4. Click on the button `register box` a new window will open, where you can register the box (see below)
-   ![registration](admin/media/registration.png)
-5. As soon as the button `registration` is pressed, the process starts, then you have 30 seconds to press the button on the box and hold it for 
-   about 3 seconds until the LED flashes green. (see below)
-   ![registration](admin/media/registration_timer.png)
-6. After you release the device key, after a few seconds will be displayed the token and inserted into the field. (see below)
-   ![token](admin/media/registration_successful.png)
-   ![token](admin/media/token.png)
-7. Now you can click on the button `add` and the box will be added, then you just have to click on the button `save` to save the config.
-   ![Adapter_GUI](admin/media/Adapter_GUI.png)
+Important writable states include:
 
-## Delete the hue sync box from the adapter
-### Attention! For the deletion with the options to work, the token must have been created via the registration function of the adapter.
+- `execution.syncActive`, `execution.hdmiActive`, `execution.mode`
+- `execution.hdmiSource`, `execution.hueTarget`, `execution.brightness`
+- mode intensity/background settings
+- HDMI input name/type and supported behavior settings
 
-1. Open the adapter configuration and click on the button "Delete" Trash can icon.
-2. a new window opens with 2 options select the option you want to use. If none of the options is selected, the box will only be deleted from 
-   config. (see below) 
-   - `deregister from the box` - the box will be deleted from the adapter and the token will be deleted from the box
-   - `delete object` - the box will be deleted from the adapter and the objects will be deleted from the ioBroker
-     ![delete_box](admin/media/delete_device.png)
-   
-you can also select both options at the same time then the box is deleted from the adapter and the objects are deleted from the ioBroker and 
-the token is deleted from the box.
+`overheating` and `undervolt` are read-only warning indicators. The adapter logs only transitions and exposes an aggregate device warning to Device Manager.
+
+## HTTPS security
+
+Normal requests validate the Sync Box certificate against the Philips Hue Sync Box CA and verify its identity against `device.uniqueId`. HTTPS keep-alive, an 8-second timeout, a one-MiB response limit and bounded retry for transient network failures are enabled.
+
+For old configurations without a stored Unique ID, the adapter obtains it once from the documented unauthenticated `/api/v1/device` endpoint without sending a token. All authenticated traffic then uses verified TLS. `allowInsecureTls` is disabled by default and should only be enabled temporarily while diagnosing certificate problems.
+
+## Polling
+
+- Execution: default 3 seconds
+- HDMI and Hue status: default 15 seconds
+- Device, behavior and presets: default 5 minutes
+
+Intervals are configurable and bounded. API level 7 is the minimum; lower levels produce a firmware-update error. Unknown future mode strings are retained instead of crashing the adapter.
+
+## Local development
+
+The project uses the pinned hardened ioBroker dev-server revision requested for this adapter.
+
+```bash
+npm install
+npm run build
+npm run dev-server setup -- --symlinks
+npm run dev
+```
+
+The first setup command creates a local `.dev-server` profile. `npm run dev` starts ioBroker and watches backend plus Admin/Tab assets. Available checks are:
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+Optional hardware test (never commit these secrets):
+
+```bash
+HUE_SYNC_BOX_HOST=192.168.1.20 \
+HUE_SYNC_BOX_UNIQUE_ID=001788fffe123456 \
+HUE_SYNC_BOX_TOKEN=secret \
+npm run test:hardware
+```
+
+On PowerShell, assign the three values through `$env:HUE_SYNC_BOX_HOST`, `$env:HUE_SYNC_BOX_UNIQUE_ID` and `$env:HUE_SYNC_BOX_TOKEN` first.
+
+## Troubleshooting
+
+- **Discovery finds nothing:** mDNS often does not cross VLANs and container networks. Permit UDP 5353/multicast or use manual pairing.
+- **Certificate identity failure:** verify that the configured IP still belongs to the stored Unique ID. Re-discover the box after DHCP changes.
+- **401:** pair again; authentication errors are deliberately not retried.
+- **API level below 7:** update the Sync Box firmware using the official app.
+- **No HDMI controls:** check `hdmi.contentSpecs`, `videoSyncSupported` and the input status in the adapter tab.
+
+See [the endpoint and state mapping](docs/HUE_SYNC_BOX_API.md) and [the repository audit](docs/REPOSITORY_AUDIT.md) for implementation details.
 
 ## Changelog
-<!--
-	Placeholder for the next version (at the beginning of the line):
-	### **WORK IN PROGRESS**
--->
-### 0.3.5 (2023-02-06)
-* (xXBJXx) Dependency update
 
-### 0.3.4 (2023-01-15)
-* (xXBJXx) fixed Sentry error reporting
+### 0.4.0
 
-### 0.3.3 (2023-01-14)
-* (xXBJXx) fixed a bug
+- Complete strict-TypeScript backend and API rewrite
+- Verified Hue CA TLS, discovery, modern pairing and Device Manager v3
+- React 19/MUI 9 Admin UI and control tab based on `@iobroker/gui-components`
+- Capability-based 4K/8K states, API fixtures, unit tests and Node 22/24 CI
 
-### 0.3.2 (2023-01-13)
-* (xXBJXx) update dependencies
-* (xXBJXx) Log output extended and improved
-* (xXBJXx) Added data point for the response JSON
-* (xXBJXx) Added data point "Reachable" to check if the box is reachable
-
-### 0.3.1 (2022-12-20)
-* (xXBJXx) Fixed error message that occurs after a successful registration.
-
-### 0.3.0 (2022-12-20)
-* (xXBJXx) added delete function for objects and Token
-* (xXBJXx) added funktion for sync the `execution.intensity` state
-
-### 0.2.1 (2022-12-17)
-* (xXBJXx) typo corrected in README
-* (xXBJXx) Fixed a bug when sending commands to the box
-
-### 0.2.0 (2022-12-17)
-* (xXBJXx) Optimization and improvement of the registration process
-
-### 0.1.0 (2022-12-16)
-* (Issi) First release
+Older changes are available in the Git history and published release notes.
 
 ## License
+
 MIT License
 
-Copyright (c) 2022-2023 Issi <issi.dev.iobroker@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Copyright (c) 2022-2026 Issi <issi.dev.iobroker@gmail.com>
