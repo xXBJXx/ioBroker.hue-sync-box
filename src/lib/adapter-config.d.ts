@@ -2,18 +2,25 @@
 
 // Augment the globally declared type ioBroker.AdapterConfig
 declare global {
-	namespace ioBroker {
-		interface Devices {
-			name: string;
-			ip: string;
-			token: string;
-			id: number;
-		}
-		interface AdapterConfig {
-			devices: Devices[];
-		}
-	}
+    namespace ioBroker {
+        interface HueSyncBoxDeviceConfig {
+            name: string;
+            ip: string;
+            token: string;
+            id?: number;
+            uniqueId?: string;
+            disabled?: boolean;
+        }
+
+        interface AdapterConfig {
+            devices: HueSyncBoxDeviceConfig[];
+            allowInsecureTls?: boolean;
+            discoveryInterface?: string;
+            pollExecutionSeconds?: number;
+            pollStatusSeconds?: number;
+            pollMetadataMinutes?: number;
+        }
+    }
 }
 
-// this is required so the above AdapterConfig is found by TypeScript / type checking
 export {};
