@@ -1,0 +1,32 @@
+:root {
+    font-family: Inter, system-ui, sans-serif;
+}
+body {
+    margin: 0;
+    min-width: 320px;
+}
+.page {
+    min-height: 100vh;
+    padding: clamp(16px, 3vw, 40px);
+    background: var(--iobroker-background, transparent);
+    box-sizing: border-box;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+}
+.deviceRow {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) minmax(160px, auto) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+}
+@media (max-width: 650px) {
+    .deviceRow {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+}
